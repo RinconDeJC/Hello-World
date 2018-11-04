@@ -1,0 +1,332 @@
+//ENRIQUE CARRO y JUAN CARLOS DIAZ
+
+#include <iostream>
+#include<iomanip>
+#include<cstdlib>
+#include<ctime>
+#include<fstream>
+#include<string>
+#include<cmath>
+using namespace std;
+
+const short int Tipos_cartas = 8;
+const float limite = 7.5;
+typedef short int tQuedan[Tipos_cartas];
+
+int menu(); //ejecuta el menu
+void modoA(); //ejecuta el modo A
+void modoB(); //ejecuta el modo B
+void modoC(); //ejecuta el modo C
+void modoD(); //ejecuta el modo D
+void modoE(); //ejecuta el modo E
+int max_cartas(); //generea el maximo numero de cartas a robar en A y B
+short int f_ganador(float puntos_j, float puntos_m); // determina el ganador de la partida en funcionde los puntos de cada uno
+int rand_ganador(); // determina el ganador aleatoriamente en caso de empate
+float turno_A(ifstream& archivo, int max); // simula el turno del modo A
+float turno_B_jugador(ifstream& archivo, int max); // simula el turno del modo B del jugador
+float turno_B_maquina(ifstream& archivo, int max, float score_j); // simula el turno del modo B de la maquina
+float calculadorA_B(ifstream& archivo); //calcula lo que vale cada carta
+void Iniciar_array(tQuedan); //Da los valores al array del numero de cartas de cada tipo en el mazo
+
+
+int main() {
+	int opcion;
+	opcion = menu();
+	while (opcion != 0) {
+		switch (opcion) {
+		case 1: {
+			modoA();
+		}
+				break;
+		case 2: {
+			modoB();
+		}
+				break;
+		case 3: {
+			modoC();
+		}
+				break;
+		case 4: {
+			modoD();
+		}
+				break;
+		case 5: {
+			modoE();
+		}
+				break;
+		}
+		opcion = menu();
+	}
+	return 0;
+}
+
+int menu()
+{
+	int eleccion;
+
+	cout << "Selecciona el modo de juego:" << endl;
+	cout << "1 - Modo A" << endl;
+	cout << "2 - Modo B" << endl;
+	cout << "3 - Modo C" << endl;
+	cout << "4 - Modo D" << endl;
+	cout << "5 - Modo E" << endl;
+	cout << "0 - Salir" << endl;
+	cout << "Opcion: ";
+	cin >> eleccion;
+
+	while (cin.fail() || eleccion > 5 || eleccion < 0) {
+		cin.clear();
+		cin.ignore(1000, '\n');
+
+		cout << "Dato incorrecto. Por favor, introduzca la opcion de nuevo." << endl;
+		cout << "Opcion: ";
+		cin >> eleccion;
+	}
+
+	return eleccion;
+}
+
+void modoA() {
+	ifstream archivo;
+	string mazo;
+	int cartas, ganador;
+	float jugador = 0, maquina = 0;
+
+	cout << "\nElige el mazo: ";
+	cin >> mazo;
+	cout << endl;
+
+	archivo.open(mazo);
+
+	if (archivo.is_open()) {
+		cartas = max_cartas();
+
+		cout << "Turno del jugador:\n\n";
+		jugador = turno_A(archivo, cartas);
+
+		if (jugador <= limite) {
+			cout << "Turno de la maquina:\n\n";
+			maquina = turno_A(archivo, cartas);
+		}
+		ganador = f_ganador(jugador, maquina);
+
+		if (ganador == 1) {
+			if (maquina > limite)
+				cout << "La maquina se ha pasado. ";
+			cout << "El jugador ha ganado\n\n";
+		}
+		else {
+			if (jugador > limite)
+				cout << "Te has pasado. ";
+			cout << "La maquina ha ganado. Intentalo de nuevo.\n\n";
+		}
+		archivo.close();
+	}
+	else
+		cout << "Archivo no encontrado\n\n";
+}
+
+void modoB() {
+	ifstream archivo;
+	string mazo;
+	int cartas, ganador;
+	float jugador = 0, maquina = 0;
+
+	cout << "\nElige el mazo: ";
+	cin >> mazo;
+	cout << endl;
+
+	archivo.open(mazo);
+
+	if (archivo.is_open()) {
+		cartas = max_cartas();
+
+		cout << "Turno del jugador:\n";
+		jugador = turno_B_jugador(archivo, cartas);
+
+		if (jugador <= limite) {
+			cout << "Turno de la maquina:\n\n";
+			maquina = turno_A(archivo, cartas);
+		}
+		ganador = f_ganador(jugador, maquina);
+
+		if (ganador == 1) {
+			if (maquina > limite)
+				cout << "La maquina se ha pasado. ";
+			cout << "El jugador ha ganado\n\n";
+		}
+		else {
+			if (jugador > limite)
+				cout << "Te has pasado. ";
+			cout << "La maquina ha ganado. Intentalo de nuevo.\n\n";
+		}
+		archivo.close();
+	}
+	else
+		cout << "Archivo no encontrado\n\n";
+}
+
+void modoC() {
+	ifstream archivo;
+	string mazo;
+	int cartas, ganador;
+	float jugador = 0, maquina = 0;
+	tQuedan cont;
+	Iniciar_array(cont);
+	
+	cout << "\nElige el mazo: ";
+	cin >> mazo;
+	cout << endl;
+
+	archivo.open(mazo);
+
+	if (archivo.is_open()) {
+		cartas = max_cartas();
+
+		cout << "Turno del jugador:\n";
+		jugador = turno_B_jugador(archivo, cartas);
+
+		if (jugador <= limite) {
+			cout << "Turno de la maquina:\n\n";
+			maquina = turno_A(archivo, cartas);
+		}
+		ganador = f_ganador(jugador, maquina);
+
+		if (ganador == 1) {
+			if (maquina > limite)
+				cout << "La maquina se ha pasado. ";
+			cout << "El jugador ha ganado\n\n";
+		}
+		else {
+			if (jugador > limite)
+				cout << "Te has pasado. ";
+			cout << "La maquina ha ganado. Intentalo de nuevo.\n\n";
+		}
+		archivo.close();
+	}
+	else
+		cout << "Archivo no encontrado\n\n";
+}
+
+void modoD() {
+	cout << "D\n";
+}
+
+void modoE() {
+	cout << "E\n";
+}
+
+int max_cartas() {
+	int num;
+
+	srand(time(NULL));
+
+	num = 3 + rand() % 3;
+
+	return num;
+}
+
+short int f_ganador(float puntos_j, float puntos_m) {
+	short int resultado;
+
+	if (puntos_j > puntos_m) {
+		if (puntos_j <= limite)
+			resultado = 1;
+		else
+			resultado = 0;
+	}
+	else if (puntos_j < puntos_m) {
+		if (puntos_m <= limite)
+			resultado = 0;
+		else
+			resultado = 1;
+	}
+	else
+		resultado = rand_ganador();
+
+	return resultado;
+}
+
+int rand_ganador() {
+	int num;
+
+	srand(time(NULL));
+
+	num = 1 + rand() % 2;
+
+	return num;
+}
+
+float calculadorA_B(ifstream& lector) {
+	float puntos;
+
+	lector >> puntos;
+	cout << "Carta: " << setw(3) << right << puntos << " ";
+
+	if (puntos == 10 || puntos == 11 || puntos == 12)
+		puntos = 0.5;
+
+
+	return puntos;
+}
+
+float turno_A(ifstream& archivo, int cartas) {
+	float score = 0;
+	bool seguir = true;
+
+	for (int i = 1; i <= cartas && score < limite; i++) {
+
+		score = score + calculadorA_B(archivo);
+		cout << "Puntuacion:" << setw(3) << right << score << endl;
+	}
+	cout << "Puntuacion final: " << score << endl << endl;
+	return score;
+}
+
+float turno_B_jugador(ifstream& archivo, int cartas) {
+	float score = 0;
+	bool seguir = true;
+	char respuesta;
+
+	score = score + calculadorA_B(archivo);
+
+	for (int i = 1; i <= cartas && score < limite && seguir; i++) {
+		
+		cout << "Puntuacion:" << setw(3) << right << score << endl;
+		cout << "Quieres otra carta? (S/N)  ";
+		cin >> respuesta;
+		while (respuesta != 'S' && respuesta != 'N') {
+			cin.ignore(1000, '\n');
+			cout << "Quieres otra carta? (S/N)  ";
+			cin >> respuesta;
+		}
+		if (respuesta == 'N')
+			seguir = false;
+		score = score + calculadorA_B(archivo);
+	}
+	cout << "Puntuacion final: " << score << endl << endl;
+	return score;
+}
+
+float turno_B_maquina(ifstream& archivo, int cartas, float score_j) {
+	float score = 0;
+	bool seguir = true;
+
+	for (int i = 1; i <= cartas && score < limite && seguir; i++) {
+
+		score = score + calculadorA_B(archivo);
+		cout << "Puntuacion:" << setw(3) << right << score << endl;
+		if (score > score_j)
+			seguir = false;
+	}
+	cout << "Puntuacion final: " << score << endl << endl;
+	return score;
+}
+
+void Iniciar_array(tQuedan cont) {
+	cont[0] = 1;
+
+	for (int i = 1; i < Tipos_cartas; i++) {
+		cont[i] = 4;
+	}
+}
